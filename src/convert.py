@@ -1,12 +1,17 @@
-import supervisely as sly
+import csv
 import os
-from dataset_tools.convert import unpack_if_archive
-import src.settings as s
+from collections import defaultdict
 from urllib.parse import unquote, urlparse
-from supervisely.io.fs import get_file_name, get_file_size
-import shutil
 
+import cv2
+import numpy as np
+import supervisely as sly
+from dataset_tools.convert import unpack_if_archive
+from supervisely.io.fs import file_exists, get_file_name
 from tqdm import tqdm
+
+import src.settings as s
+
 
 def download_dataset(teamfiles_dir: str) -> str:
     """Use it for large datasets to convert them on the instance"""
@@ -52,7 +57,8 @@ def download_dataset(teamfiles_dir: str) -> str:
 
         dataset_path = storage_dir
     return dataset_path
-    
+
+
 def count_files(path, extension):
     count = 0
     for root, dirs, files in os.walk(path):
@@ -60,21 +66,193 @@ def count_files(path, extension):
             if file.endswith(extension):
                 count += 1
     return count
-    
+
+
 def convert_and_upload_supervisely_project(
     api: sly.Api, workspace_id: int, project_name: str
 ) -> sly.ProjectInfo:
-    ### Function should read local dataset and upload it to Supervisely project, then return project info.###
-    raise NotImplementedError("The converter should be implemented manually.")
+    """
+    convert info:
+    orgignal data includes DICOM(160gb)
+    for convert we use prepossessed dataset that you can find here:
+    https://www.kaggle.com/datasets/mohamedbenticha/cbis-ddsm ("DATA" dir)
+    for tags information please download csv description:
+    https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629#22516629accaef0469834754b89af9e007760b10
+    also download dicom_info.csv from:
+    https://www.kaggle.com/datasets/awsaf49/cbis-ddsm-breast-cancer-image-dataset?resource=download
+    put all csv in "csv" folder
+    """
+    dataset_path = "DATA"
+    batch_size = 50
 
-    # dataset_path = "/local/path/to/your/dataset" # general way
-    # dataset_path = download_dataset(teamfiles_dir) # for large datasets stored on instance
+    project_dict = defaultdict()
 
-    # ... some code here ...
+    csv_folder = "csv"
+    info_train_calc = "calc_case_description_train_set.csv"
+    info_train_mass = "mass_case_description_train_set.csv"
+    info_test_calc = "calc_case_description_test_set.csv"
+    info_test_mass = "mass_case_description_test_set.csv"
+    ds_infos = {
+        "train_calc": info_train_calc,
+        "train_mass": info_train_mass,
+        "test_calc": info_test_calc,
+        "test_mass": info_test_mass,
+    }
 
-    # sly.logger.info('Deleting temporary app storage files...')
-    # shutil.rmtree(storage_dir)
+    project_dict = {
+        "test_calc": defaultdict(),
+        "test_mass": defaultdict(),
+        "train_calc": defaultdict(),
+        "train_mass": defaultdict(),
+    }
 
-    # return project
+    for ds in ds_infos:
+        file = ds_infos[ds]
+        temp_dict = defaultdict()
+        file_path = os.path.join(csv_folder, file)
+        with open(file_path, newline="") as csvfile:
+            info = csv.reader(csvfile, delimiter=",")
+            for i, line in enumerate(info):
+                if i == 0:
+                    dict_values = line
+                else:
+                    temp_dict[line[0] + line[2]] = {dict_values[i]: el for i, el in enumerate(line)}
+            project_dict[ds] = temp_dict
 
+    dicom_info = os.path.join(csv_folder, "dicom_info.csv")
+    dicom_dict = defaultdict()
 
+    with open(dicom_info, newline="") as csvfile:
+        info = csv.reader(csvfile, delimiter=",")
+        for i, line in enumerate(info):
+            if i == 0:
+                dict_values = line
+            else:
+                dicom_dict[line[17]] = {dict_values[i]: el for i, el in enumerate(line)}
+
+    tag_dict = defaultdict()
+    image_test = []
+    image_train = []
+
+    for r, d, f in os.walk(dataset_path):
+        for file in f:
+            if "MASK" not in file:
+                file_key = file[: file.find("_FULL")]
+                try:
+                    for key in dicom_dict:
+                        if file_key in key:
+                            tag_dict[file] = dicom_dict[key]
+                            if "Test" in r:
+                                image_test.append(os.path.join(r, file))
+                            else:
+                                image_train.append(os.path.join(r, file))
+                            break
+                except Exception:
+                    pass
+
+    def get_mask_path(path, name):
+        dir_path, filename = os.path.split(path)
+        for file in os.listdir(dir_path):
+            if name in file and file != filename:
+                return os.path.join(dir_path, file)
+
+    def create_ann(image_path):
+        labels = []
+        image_np = sly.imaging.image.read(image_path)[:, :, 0]
+        img_height = image_np.shape[0]
+        img_wight = image_np.shape[1]
+        info = tag_dict[os.path.basename(image_path)]
+        pation_id = "P_" + info["PatientID"].split("_")[2] + info["PatientID"].split("_")[3]
+        if "Test" in image_path and "Calc" in image_path:
+            k = "test_calc"
+        elif "Test" in image_path and "Mass" in image_path:
+            k = "test_mass"
+        elif "Train" in image_path and "Calc" in image_path:
+            k = "train_calc"
+        elif "Train" in image_path and "Mass" in image_path:
+            k = "train_mass"
+        try:
+            pat_info = project_dict[k][pation_id]
+        except Exception:
+            pass
+        img_name = os.path.basename(image_path)
+        mask_path = get_mask_path(image_path, img_name[0 : img_name.find("_FULL")])
+        tags_sly = []
+        tags = [
+            pat_info["pathology"],
+            pat_info["abnormality type"],
+            info["PatientOrientation"],
+            info["PatientID"].split("_")[3],
+            "assessment:" + pat_info["assessment"],
+        ]
+        for tag_name in tags:
+            tag = [sly.Tag(tag_meta) for tag_meta in tag_metas if tag_meta.name == tag_name.lower()]
+            tags_sly.append(tag[0])
+
+        if file_exists(mask_path):
+            mask_np = sly.imaging.image.read(mask_path)[:, :, 0]
+            if len(np.unique(mask_np)) != 1:
+                uniq = np.unique(mask_np)
+                for label in uniq:
+                    if label == 0:
+                        pass
+                    else:
+                        obj_mask = mask_np == label
+                        obj_class = meta.get_obj_class("abnormal_structure")
+                        ret, curr_mask = cv2.connectedComponents(
+                            mask_np.astype("uint8"), connectivity=8
+                        )
+                        for i in range(1, ret):
+                            obj_mask = curr_mask == i
+                            curr_bitmap = sly.Bitmap(obj_mask)
+                            curr_label = sly.Label(curr_bitmap, obj_class)
+                            labels.append(curr_label)
+        return sly.Annotation(img_size=(img_height, img_wight), labels=labels, img_tags=tags_sly)
+
+    obj_class = sly.ObjClass("abnormal_structure", sly.Bitmap, [255, 0, 0])
+    tag_names = [
+        "calcification",
+        "RIGHT",
+        "BENIGN_WITHOUT_CALLBACK",
+        "MLO",
+        "mass",
+        "BENIGN",
+        "MALIGNANT",
+        "LEFT",
+        "CC",
+        "assessment:1",
+        "assessment:2",
+        "assessment:3",
+        "assessment:4",
+        "assessment:5",
+        "assessment:0",
+    ]
+    tag_metas = [sly.TagMeta(name.lower(), sly.TagValueType.NONE) for name in tag_names]
+
+    project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
+    meta = sly.ProjectMeta(obj_classes=[obj_class], tag_metas=tag_metas)
+    api.project.update_meta(project.id, meta.to_json())
+
+    dataset_test = api.dataset.create(project.id, "test", change_name_if_conflict=True)
+    dataset_train = api.dataset.create(project.id, "train", change_name_if_conflict=True)
+
+    total_files = len(image_test) + len(image_train)
+
+    project_images = {"test": image_test, "train": image_train}
+    progress = sly.Progress("Create datasets {}".format("test,train"), total_files)
+
+    for ds in project_images:
+        if ds == "test":
+            dataset = dataset_test
+        else:
+            dataset = dataset_train
+        img_paths = project_images[ds]
+        for img_pathes_batch in sly.batched(img_paths, batch_size=batch_size):
+            img_names_batch = [os.path.basename(img_path) for img_path in img_pathes_batch]
+            img_infos = api.image.upload_paths(dataset.id, img_names_batch, img_pathes_batch)
+            img_ids = [im_info.id for im_info in img_infos]
+            anns_batch = [create_ann(image_path) for image_path in img_pathes_batch]
+            api.annotation.upload_anns(img_ids, anns_batch)
+            progress.iters_done_report(len(img_names_batch))
+
+    return project
