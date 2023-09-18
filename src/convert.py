@@ -264,7 +264,6 @@ def convert_and_upload_supervisely_project(
 
     tag_names_anystirng = [
         "calc_type",
-        "calc_distribution_list",
         "calc_distribution",
         "mass_shape",
         "mass_margins",
