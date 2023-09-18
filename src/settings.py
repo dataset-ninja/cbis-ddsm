@@ -40,12 +40,10 @@ RELEASE_DATE: Optional[str] = " 2017-09-14"  # e.g. "YYYY-MM-DD"
 if RELEASE_DATE is None:
     RELEASE_YEAR: int = None
 
-HOMEPAGE_URL: str = (
-    "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629"
-)
+HOMEPAGE_URL: str = "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629"
 # e.g. "https://some.com/dataset/homepage"
 
-PREVIEW_IMAGE_ID: int = 4261453
+PREVIEW_IMAGE_ID: int = 4266633
 # This should be filled AFTER uploading images to instance, just ID of any image.
 
 GITHUB_URL: str = "https://github.com/dataset-ninja/cbis-ddsm"
@@ -116,9 +114,7 @@ SECTION_EXPLORE_CUSTOM_DATASETS: Optional[List[str]] = None
 def check_names():
     fields_before_upload = [PROJECT_NAME]  # PROJECT_NAME_FULL
     if any([field is None for field in fields_before_upload]):
-        raise ValueError(
-            "Please fill all fields in settings.py before uploading to instance."
-        )
+        raise ValueError("Please fill all fields in settings.py before uploading to instance.")
 
 
 def get_settings():
@@ -142,9 +138,7 @@ def get_settings():
     }
 
     if any([field is None for field in settings.values()]):
-        raise ValueError(
-            "Please fill all fields in settings.py after uploading to instance."
-        )
+        raise ValueError("Please fill all fields in settings.py after uploading to instance.")
 
     settings["release_date"] = RELEASE_DATE
     settings["download_original_url"] = DOWNLOAD_ORIGINAL_URL

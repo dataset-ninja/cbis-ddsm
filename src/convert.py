@@ -239,6 +239,8 @@ def convert_and_upload_supervisely_project(
                         for i in range(1, ret):
                             obj_mask = curr_mask == i
                             curr_bitmap = sly.Bitmap(obj_mask)
+                            if curr_bitmap.area < 15:
+                                continue
                             curr_label = sly.Label(curr_bitmap, obj_class)
                             labels.append(curr_label)
         return sly.Annotation(img_size=(img_height, img_wight), labels=labels, img_tags=tags_sly)
