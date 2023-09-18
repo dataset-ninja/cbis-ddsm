@@ -16,7 +16,15 @@ Separate sets of cases for training and testing algorithms are important for ens
 ![Fig.3](https://i.ibb.co/wdf4p5n/41597-2017-Article-BFsdata2017177-Fig3-HTML.webp)
 <i>Figure 3: Histograms showing distribution of reading difficulty for training and test sets.</i>
 
-![Table 3](https://i.ibb.co/YXP5zzz/Screenshot-2023-09-18-190003.png)
+
+
+|                            |        Benign Cases          |        Malignant Cases       |
+|----------------------------|------------------------------|------------------------------|
+| Calcification Training Set | 329 cases (552 abnormalities)| 273 cases (304 abnormalities)|
+| Calcification Test Set     | 85 cases (112 abnormalities) | 66 cases (77 abnormalities)  |
+| Mass Training Set          | 355 cases (387 abnormalities)| 336 cases (361 abnormalities)|
+| Mass Training Set          | 117 cases (135 abnormalities)| 83 cases (87 abnormalities)  |
+
 <i>Table 3 Number of Cases and Abnormalities in the Training and Test Sets.</i>
 
 ## Data Records
