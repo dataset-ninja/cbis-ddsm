@@ -150,6 +150,13 @@ def convert_and_upload_supervisely_project(
                 except Exception:
                     pass
 
+    def get_corr_key(dict, key1, key2):
+        try:
+            info = dict[key1]
+        except Exception:
+            info = dict[key2]
+        return info
+
     def get_mask_path(path, name):
         dir_path, filename = os.path.split(path)
         for file in os.listdir(dir_path):
@@ -185,8 +192,35 @@ def convert_and_upload_supervisely_project(
             info["PatientID"].split("_")[3],
             "assessment:" + pat_info["assessment"],
         ]
+        if pat_info["abnormality type"] == "mass":
+            tags_any = {
+                "mass_margins": get_corr_key(pat_info, "mass_margins", "mass margins"),
+                "mass_shape": get_corr_key(pat_info, "mass_shape", "mass shape"),
+                "breast_density": get_corr_key(pat_info, "breast_density", "breast density"),
+                "patient_id": get_corr_key(pat_info, "patient_id", "patient id"),
+                "subtlety": pat_info["subtlety"],
+            }
+        else:
+            tags_any = {
+                "calc_type": get_corr_key(pat_info, "calc_type", "calc type"),
+                "calc_distribution_list": get_corr_key(
+                    pat_info, "calc_distribution_list", "calc distribution"
+                ),
+                "breast_density": get_corr_key(pat_info, "breast_density", "breast density"),
+                "patient_id": get_corr_key(pat_info, "patient_id", "patient id"),
+                "subtlety": pat_info["subtlety"],
+            }
+
         for tag_name in tags:
             tag = [sly.Tag(tag_meta) for tag_meta in tag_metas if tag_meta.name == tag_name.lower()]
+            tags_sly.append(tag[0])
+
+        for tag_key in tags_any:
+            tag = [
+                sly.Tag(meta=tag_meta, value=tags_any[tag_key])
+                for tag_meta in tag_metas
+                if tag_meta.name == tag_key.lower()
+            ]
             tags_sly.append(tag[0])
 
         if file_exists(mask_path):
@@ -210,7 +244,7 @@ def convert_and_upload_supervisely_project(
         return sly.Annotation(img_size=(img_height, img_wight), labels=labels, img_tags=tags_sly)
 
     obj_class = sly.ObjClass("abnormal_structure", sly.Bitmap, [255, 0, 0])
-    tag_names = [
+    tag_names_nontype = [
         "calcification",
         "RIGHT",
         "BENIGN_WITHOUT_CALLBACK",
@@ -227,7 +261,23 @@ def convert_and_upload_supervisely_project(
         "assessment:5",
         "assessment:0",
     ]
-    tag_metas = [sly.TagMeta(name.lower(), sly.TagValueType.NONE) for name in tag_names]
+
+    tag_names_anystirng = [
+        "calc_type",
+        "calc_distribution_list",
+        "calc_distribution",
+        "mass_shape",
+        "mass_margins",
+        "breast_density",
+        "subtlety",
+        "patient_id",
+    ]
+
+    tag_metas = [sly.TagMeta(name.lower(), sly.TagValueType.NONE) for name in tag_names_nontype]
+    tag_metas_any = [
+        sly.TagMeta(name.lower(), sly.TagValueType.ANY_STRING) for name in tag_names_anystirng
+    ]
+    tag_metas.extend(tag_metas_any)
 
     project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
     meta = sly.ProjectMeta(obj_classes=[obj_class], tag_metas=tag_metas)
@@ -254,5 +304,4 @@ def convert_and_upload_supervisely_project(
             anns_batch = [create_ann(image_path) for image_path in img_pathes_batch]
             api.annotation.upload_anns(img_ids, anns_batch)
             progress.iters_done_report(len(img_names_batch))
-
     return project

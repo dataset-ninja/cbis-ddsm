@@ -50,9 +50,7 @@ GITHUB_URL: str = "https://github.com/dataset-ninja/cbis-ddsm"
 ### * Optional after uploading ###
 ##################################
 DOWNLOAD_ORIGINAL_URL: Optional[Union[str, dict]] = [
-    "https://www.kaggle.com/datasets/mohamedbenticha/cbis-ddsm",
-    "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629#22516629accaef0469834754b89af9e007760b10",
-    "https://www.kaggle.com/datasets/awsaf49/cbis-ddsm-breast-cancer-image-dataset?resource=download",
+    "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629#22516629accaef0469834754b89af9e007760b10"
 ]
 # Optional link for downloading original dataset (e.g. "https://some.com/dataset/download")
 
@@ -65,7 +63,9 @@ PAPER: Optional[
     Union[str, List[str], Dict[str, str]]
 ] = "https://www.nature.com/articles/sdata2017177"
 BLOGPOST: Optional[Union[str, List[str], Dict[str, str]]] = None
-REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = None
+REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = {
+    "Prepossessed version": "https://www.kaggle.com/datasets/mohamedbenticha/cbis-ddsm"
+}
 
 CITATION_URL: Optional[
     str
