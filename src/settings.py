@@ -43,7 +43,7 @@ if RELEASE_DATE is None:
 HOMEPAGE_URL: str = "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=22516629"
 # e.g. "https://some.com/dataset/homepage"
 
-PREVIEW_IMAGE_ID: int = 4266633
+PREVIEW_IMAGE_ID: int = 4269384
 # This should be filled AFTER uploading images to instance, just ID of any image.
 
 GITHUB_URL: str = "https://github.com/dataset-ninja/cbis-ddsm"
