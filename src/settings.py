@@ -17,7 +17,7 @@ PROJECT_NAME: str = "CBIS-DDSM"
 PROJECT_NAME_FULL: str = (
     "Curated Breast Imaging Subset of Digital Database for Screening Mammography"
 )
-HIDE_DATASET = True  # set False when 100% sure about repo quality
+HIDE_DATASET = False  # set False when 100% sure about repo quality
 
 ##################################
 # * After uploading to instance ##
