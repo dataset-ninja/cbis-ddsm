@@ -24,8 +24,7 @@ HIDE_DATASET = False  # set False when 100% sure about repo quality
 ##################################
 LICENSE: License = License.CC_BY_3_0()
 APPLICATIONS: List[Union[Industry, Domain, Research]] = [
-    Industry.Medical(),
-    Research.Medical(),
+    Industry.Medical()
 ]
 CATEGORY: Category = Category.Medical()
 
@@ -36,7 +35,7 @@ CV_TASKS: List[CVTask] = [
 ]
 ANNOTATION_TYPES: List[AnnotationType] = [AnnotationType.InstanceSegmentation()]
 
-RELEASE_DATE: Optional[str] = " 2017-09-14"  # e.g. "YYYY-MM-DD"
+RELEASE_DATE: Optional[str] = "2017-09-14"  # e.g. "YYYY-MM-DD"
 if RELEASE_DATE is None:
     RELEASE_YEAR: int = None
 
