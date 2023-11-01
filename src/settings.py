@@ -15,7 +15,7 @@ from dataset_tools.templates import (
 ##################################
 PROJECT_NAME: str = "CBIS-DDSM"
 PROJECT_NAME_FULL: str = (
-    "Curated Breast Imaging Subset of Digital Database for Screening Mammography"
+    "CBIS-DDSM: Curated Breast Imaging Subset of Digital Database for Screening Mammography"
 )
 HIDE_DATASET = False  # set False when 100% sure about repo quality
 
@@ -66,7 +66,7 @@ PAPER: Optional[
 ] = "https://www.nature.com/articles/sdata2017177"
 BLOGPOST: Optional[Union[str, List[str], Dict[str, str]]] = None
 REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = {
-    "Prepossessed version": "https://www.kaggle.com/datasets/mohamedbenticha/cbis-ddsm"
+    "Kaggle": "https://www.kaggle.com/datasets/mohamedbenticha/cbis-ddsm"
 }
 
 CITATION_URL: Optional[
@@ -80,15 +80,16 @@ AUTHORS: Optional[List[str]] = [
     "Mia Gorovoy",
     "Daniel L. Rubin",
 ]
+AUTHORS_CONTACTS: Optional[List[str]] = ["rebeccalslee15@gmail.com", "dlrubin@stanford.edu"]
 
 ORGANIZATION_NAME: Optional[Union[str, List[str]]] = ["Stanford University"]
 ORGANIZATION_URL: Optional[Union[str, List[str]]] = ["https://www.stanford.edu/"]
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
 SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
-    "Breast": ["left", "right"],
-    "View": ["cc", "mlo"],
-    "BI-RADS assessment": [
+    "breasts": ["left", "right"],
+    "views": ["cc", "mlo"],
+    "BI-RADS assessments": [
         "assessment:1",
         "assessment:2",
         "assessment:3",
@@ -96,9 +97,9 @@ SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
         "assessment:5",
         "assessment:0",
     ],
-    "pathology": ["benign", "benign_without_callback", "malignant"],
-    "case": ["calcification", "mass"],
-    "__POSTTEXT__": "Also dataset includes ***calc_type***, ***calc_distribution***, ***mass_shape***, ***mass_margins***, ***breast_density***, ***subtlety***, ***patient_id*** tags",
+    "pathologies": ["benign", "benign_without_callback", "malignant"],
+    "cases": ["calcification", "mass"],
+    "__POSTTEXT__": "Also, dataset includes ***calc_type***, ***calc_distribution***, ***mass_shape***, ***mass_margins***, ***breast_density***, ***subtlety***, ***patient_id*** tags",
 }
 TAGS: Optional[List[str]] = None
 
@@ -147,6 +148,7 @@ def get_settings():
     settings["repository"] = REPOSITORY
     settings["citation_url"] = CITATION_URL
     settings["authors"] = AUTHORS
+    settings["authors_contacts"] = AUTHORS_CONTACTS
     settings["organization_name"] = ORGANIZATION_NAME
     settings["organization_url"] = ORGANIZATION_URL
     settings["slytagsplit"] = SLYTAGSPLIT
