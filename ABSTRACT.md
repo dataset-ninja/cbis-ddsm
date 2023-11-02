@@ -8,7 +8,7 @@ The DDSM is a collection of mammograms from the following sources: Massachusetts
 
 Mass margin and shape have long been proven substantial indicators for diagnosis in mammography. Because of this, many methods are based on developing mathematical descriptions of the tumour outline. Due to the dependence of these methods on accurate ROI segmentation and the imprecise nature of many of the DDSM-provided annotations, as seen in Fig. 1, we applied a lesion segmentation algorithm (described below) that is initialized by the general original DDSM contours but is able to supply much more accurate ROIs. Figure 1 contains example ROIs from the DDSM, our mammographer, and the automated segmentation algorithm. As shown, the DDSM outlines provide only a general location and not a precise mass boundary. The segmentation algorithm was designed to provide an exact delineation of the mass from the surrounding tissue. This segmentation was done only for masses and not calcifications.
 
-![Fig.2](https://i.ibb.co/xqKRrDV/41597-2017-Article-BFsdata2017177-Fig2-HTML.webp)
+![Fig.2](https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fsdata.2017.177/MediaObjects/41597_2017_Article_BFsdata2017177_Fig2_HTML.jpg?as=webp)
 
 <span style="font-size: smaller; font-style: italic;">Figure 1. Example ROI outlines from each of the four BI-RADS density categories.</span>
 
@@ -16,7 +16,7 @@ Mass margin and shape have long been proven substantial indicators for diagnosis
 
 Separate sets of cases for training and testing algorithms are important for ensuring that all researchers are using the same cases for these tasks. Specifically, the test set should contain cases of varying difficulty in order to ensure that the method is tested thoroughly. The data were split into a training set and a testing set based on the BI-RADS category. This allows for an appropriate stratification for researchers working on CADe as well as CADx. Note that many of the BI-RADS assessments likely were updated after additional information was gathered by the physician, as it is unconventional to subscribe BI-RADS 4 and 5 to screening images. The split was obtained using 20% of the cases for testing and the rest for training. The data were split for all mass cases and all calcification cases separately. Here ‘case’ is used to indicate a particular abnormality, seen on the craniocaudal (CC) and/or mediolateral oblique (MLO) views, which are the standard views for screening mammography. Figure 2 displays the histograms of BI-RADS assessment and pathology for the training and test sets for calcification cases and mass cases. As shown, the data split was performed in such a way as to provide an equal level of difficulty in the training and test sets. Table 1 contains the number of benign and malignant cases for each set.
 
-![Fig.3](https://i.ibb.co/wdf4p5n/41597-2017-Article-BFsdata2017177-Fig3-HTML.webp)
+![Fig.3](https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fsdata.2017.177/MediaObjects/41597_2017_Article_BFsdata2017177_Fig3_HTML.jpg?as=webp)
 
 <span style="font-size: smaller; font-style: italic;">Figure 2. Histograms show the distribution of reading difficulty for training and test sets.</span>
 
