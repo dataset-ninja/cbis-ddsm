@@ -1,6 +1,6 @@
 Dataset **CBIS-DDSM** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/v/F/oX/CardEma5UytUxK9cmygaMxpwmvFhJY4XJCs88mmZT6McM3udg63RwDfAFjreYzR7UaBj2AtuoH6yo1ES8vuvanUvlYzFbmJXFt4iiMICpxqCWqX0ds2kYPXbK2RU.tar)
+ [Download](https://www.dropbox.com/scl/fi/z6uur3s89dczlgyjv6blq/cbis-ddsm-DatasetNinja.tar?rlkey=vocptaaly20sxr52re8dod06r&dl=1)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
